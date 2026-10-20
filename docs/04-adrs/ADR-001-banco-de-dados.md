@@ -20,6 +20,8 @@ CREATE UNIQUE INDEX ux_reserva_quiosque_data_ativa
 
 Se duas reservas chegarem ao mesmo tempo, o banco aceita uma e rejeita a outra, e a aplicação devolve "Data indisponível". Reservas expiradas ou canceladas ficam fora do índice, então a data é liberada automaticamente.
 
+A expiração (RN05) é feita por um job que roda a cada 1 minuto. Para que uma reserva pendente com o prazo já vencido não continue bloqueando o índice até o job rodar, a criação de uma reserva primeiro marca como `EXPIRADA` as reservas pendentes vencidas daquele quiosque e data, na mesma transação. O calendário também trata essas reservas como livres.
+
 ## Consequências
 
 **Vantagens**

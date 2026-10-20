@@ -13,7 +13,7 @@ A reserva pode ser feita **sem conta**:
 1. O cliente é identificado pelo **CPF** (validado). Toda reserva fica ligada ao cliente.
 2. A reserva só é confirmada após o **pagamento via Pix** (RN06).
 3. Para consultar ou cancelar sem login, é preciso o **código da reserva + CPF** (RN10). Só o CPF não basta, porque CPF não é informação secreta.
-4. A **conta é opcional**. Se o cliente criar uma depois, as reservas antigas daquele CPF aparecem no histórico (RN09).
+4. A **conta é opcional**. Para criá-la, o cliente informa o **CPF** de quem já fez ao menos uma reserva, além de um e-mail e uma senha para entrar; as reservas antigas daquele CPF aparecem no histórico (RN09).
 
 ## Consequências
 
@@ -24,6 +24,7 @@ A reserva pode ser feita **sem conta**:
 
 **Desvantagens**
 - Menos seguro que login: quem souber o código e o CPF consegue acessar a reserva. Mitigado com limite de tentativas (RNF06) e envio do código só para o e-mail informado.
+- Criar conta só com o CPF é simples para o usuário, mas CPF não é segredo: quem souber o CPF de outra pessoa que ainda não tem conta consegue criá-la antes, ver o histórico e cancelar reservas dela. Risco aceito conscientemente no MVP para simplificar o cadastro; a evolução seria confirmar a posse do CPF com um código enviado para o e-mail usado nas reservas.
 - Coletar CPF exige cuidado com a LGPD (mascaramento, RNF07).
 - O pagamento passa a fazer parte do MVP, exigindo integração com um gateway Pix (ex.: Mercado Pago em modo sandbox).
 

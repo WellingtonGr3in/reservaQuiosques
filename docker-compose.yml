@@ -1,0 +1,71 @@
+# Sistema completo para rodar local / apresentar: banco + API + frontend.
+#
+#   docker compose up -d --build     sobe tudo (o --build recompila as imagens se o código mudou)
+#   http://localhost:8080            abre o sistema
+#   docker compose logs -f api       acompanha o log da API (ex.: comprovante "enviado por e-mail")
+#   docker compose down              para tudo (os dados do banco continuam no volume)
+#
+# Para desenvolver, dá para subir só o banco ("docker compose up -d postgres") e rodar a API e o
+# front fora do Docker (veja o README). Credenciais apenas para desenvolvimento.
+services:
+  # PostgreSQL (ADR-001).
+  postgres:
+    image: postgres:17-alpine
+    container_name: quiosques-postgres
+    environment:
+      POSTGRES_DB: quiosques
+      POSTGRES_USER: quiosques
+      POSTGRES_PASSWORD: quiosques_dev
+    # Porta 5433 no host para não conflitar com um PostgreSQL instalado localmente na 5432.
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiosques -d quiosques"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # API .NET (backend/Dockerfile). Não expõe porta no host: o frontend fala com ela pela rede interna do compose.
+  api:
+    build: ./backend
+    container_name: quiosques-api
+    environment:
+      # Development: liga o pagamento simulado (/api/dev/...) e usa a chave JWT de desenvolvimento.
+      ASPNETCORE_ENVIRONMENT: Development
+      # "postgres" é o nome do serviço acima; dentro da rede do compose o banco escuta na 5432.
+      ConnectionStrings__Quiosques: Host=postgres;Port=5432;Database=quiosques;Username=quiosques;Password=quiosques_dev
+      # Cria/atualiza as tabelas e os quiosques iniciais ao subir.
+      Database__MigrateOnStartup: "true"
+      # Primeiro administrador (RF11), criado ao subir se ainda não existir. Login em http://localhost:8080/admin
+      Admin__Name: Administrador
+      Admin__Email: admin
+      Admin__Password: admin
+      # Recebedor do Pix: o QR Code da tela de pagamento é um Pix real para esta chave, no valor da reserva.
+      # A confirmação continua simulada (botão "Simular pagamento"). Sem chave, o código é só simulado.
+      Pix__Key: "+5547988372118"
+      Pix__MerchantName: WELLINGTON GREIN
+      Pix__MerchantCity: JOINVILLE
+    # Fotos de quiosque enviadas pelo admin (RF16); continuam lá depois de reiniciar.
+    volumes:
+      - uploads-data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Frontend React servido pelo nginx (frontend/Dockerfile), que repassa /api para o serviço "api".
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_SIMULAR_PAGAMENTO: "true"
+    container_name: quiosques-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres-data:
+  uploads-data:

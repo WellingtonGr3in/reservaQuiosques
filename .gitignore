@@ -1,0 +1,47 @@
+# Claude Code
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.rsuser
+.vs/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+*.log
+appsettings.Local.json
+
+# Node / React
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# IDEs e editores
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Fotos de quiosque enviadas pelo admin em desenvolvimento (RF16)
+uploads/

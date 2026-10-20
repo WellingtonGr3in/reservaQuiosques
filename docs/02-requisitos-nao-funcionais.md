@@ -9,6 +9,6 @@
 | RNF05 | Segurança | Toda comunicação deve usar HTTPS. |
 | RNF06 | Segurança | A consulta por código + CPF deve aceitar no máximo 5 tentativas por minuto por IP. |
 | RNF07 | Privacidade (LGPD) | O CPF deve aparecer mascarado (ex.: `***.982.247-**`) em telas, comprovantes e e-mails. |
-| RNF08 | Usabilidade | O cliente deve concluir uma reserva sem conta passando por no máximo 4 telas, da lista de quiosques ao comprovante. |
+| RNF08 | Usabilidade | O cliente deve concluir uma reserva sem conta passando por no máximo 4 telas da lista de quiosques até o pagamento (lista, detalhe, dados e pagamento), sem contar o comprovante. |
 | RNF09 | Usabilidade | A interface deve funcionar em telas a partir de 360px de largura (celular). |
 | RNF10 | Disponibilidade | O sistema deve ter disponibilidade mínima de 99% ao mês. |

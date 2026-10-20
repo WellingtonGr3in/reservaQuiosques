@@ -1,0 +1,6 @@
+# Arquivos que não vão para o build da imagem (deixam o build mais rápido e a imagem mais limpa).
+**/bin/
+**/obj/
+tests/
+.config/
+*.user
