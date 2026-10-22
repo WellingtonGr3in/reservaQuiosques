@@ -8,7 +8,7 @@ public static class PaymentEndpoints
 {
     public static IEndpointRouteBuilder MapPaymentEndpoints(this IEndpointRouteBuilder app, IWebHostEnvironment environment)
     {
-        // RF05: gera (ou reaproveita) a cobrança Pix. Código + CPF, como na consulta sem login (RN10).
+        // RF05: gera (ou reaproveita) a cobrança Pix. Código + CPF, como o cancelamento sem login (RN10).
         app.MapPost("/api/reservas/{code}/pagamento", async (string code, CpfRequest request, StartPayment useCase, CancellationToken ct) =>
         {
             var payment = await useCase.ExecuteAsync(code, request.Cpf, ct);

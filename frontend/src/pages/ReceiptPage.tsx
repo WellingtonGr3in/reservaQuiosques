@@ -20,7 +20,7 @@ export function ReceiptPage() {
       <div className="max-w-[620px] mx-auto px-6 py-8">
         <ErrorBox message="Não encontramos os dados desta reserva neste navegador.">
           <Link to="/consultar" className="underline">
-            Consultar a reserva com o código e o CPF
+            Consultar a reserva pelo CPF
           </Link>
         </ErrorBox>
       </div>

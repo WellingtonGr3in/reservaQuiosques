@@ -11,7 +11,7 @@
 | RF05 | O sistema deve gerar a cobrança da reserva via Pix (QR Code e copia-e-cola). | Alta |
 | RF06 | O sistema deve confirmar a reserva automaticamente quando o pagamento for aprovado. | Alta |
 | RF07 | O sistema deve enviar o comprovante da reserva por e-mail, com o código da reserva. | Alta |
-| RF08 | O sistema deve permitir consultar e cancelar uma reserva informando código + CPF. | Média |
+| RF08 | O sistema deve permitir consultar as reservas informando o CPF do titular e cancelá-las. | Média |
 | RF09 | O sistema deve permitir criar uma conta vinculada ao CPF e fazer login com e-mail e senha. | Média |
 | RF10 | O sistema deve listar o histórico de reservas do cliente logado. | Média |
 | RF11 | O sistema deve ter uma área de administração com login próprio (e-mail e senha), separada das contas de cliente. | Média |
@@ -34,7 +34,7 @@
 | RN07 | O cancelamento só é permitido até 48h antes das 00:00 do dia reservado (horário de Brasília). Reserva confirmada é cancelada com reembolso integral; reserva aguardando pagamento é cancelada sem cobrança. A regra vale com ou sem login. |
 | RN08 | Cada CPF pode ter no máximo 2 reservas ativas ao mesmo tempo, contando apenas reservas para hoje ou datas futuras. |
 | RN09 | Cada CPF pode ter apenas uma conta, e só pode criá-la um CPF que já fez ao menos uma reserva. O cliente informa o CPF, um e-mail e uma senha para entrar. Ao criar a conta, as reservas feitas antes com aquele CPF aparecem no histórico. |
-| RN10 | Sem login, a reserva só pode ser consultada ou cancelada com o código da reserva **e** o CPF. |
+| RN10 | Sem login, as reservas são consultadas só com o CPF do titular: o sistema mostra todas as reservas daquele CPF, e cada uma pode ser cancelada (RN07) ou, se ainda aguarda pagamento, paga. |
 | RN11 | Se um pagamento for aprovado depois que a reserva expirou, o valor é reembolsado automaticamente e a reserva continua expirada. |
 | RN12 | Se um CPF já cadastrado fizer nova reserva com nome, e-mail ou telefone diferentes, o cadastro do cliente é atualizado com os dados mais recentes. |
 | RN13 | O administrador não está sujeito à antecedência de 2 a 90 dias (RN03), ao limite de reservas por CPF (RN08) nem ao prazo de 48h para cancelar (RN07). Continua valendo uma reserva ativa por quiosque e data (RN01). |
@@ -161,18 +161,28 @@ Cenário: Pagamento aprovado depois do prazo
 ```
 
 ### HU04 — Consultar e cancelar reserva
-> **Como** cliente sem conta, **quero** consultar e cancelar minha reserva com o código e meu CPF, **para** gerenciá-la sem precisar de login.
+> **Como** cliente sem conta, **quero** consultar e cancelar minhas reservas informando só o meu CPF, **para** gerenciá-las sem precisar de login nem guardar o código da reserva.
 
 **Requisitos:** RF08 · **Regras:** RN07, RN10
 
 ```gherkin
-Cenário: Consulta com dados corretos
-  Quando eu informar o código "QSK-7F3K9Q" e o CPF da reserva
-  Então vejo os dados da reserva
+Cenário: Consulta pelo CPF
+  Dado que fiz uma reserva com meu CPF
+  Quando eu informar o meu CPF
+  Então vejo os dados da reserva, com o CPF mascarado
 
-Cenário: Código e CPF não batem
-  Quando eu informar um código com um CPF diferente do da reserva
-  Então o sistema informa "Reserva não encontrada"
+Cenário: CPF com mais de uma reserva
+  Dado que meu CPF tem uma reserva confirmada e outra aguardando pagamento
+  Quando eu informar o meu CPF
+  Então vejo as duas reservas, cada uma com a opção de cancelar
+
+Cenário: CPF sem reservas
+  Quando eu informar um CPF que nunca fez reserva
+  Então o sistema informa "Não encontramos reservas com este CPF"
+
+Cenário: CPF inválido na consulta
+  Quando eu informar o CPF "111.111.111-11"
+  Então o sistema informa "CPF inválido"
 
 Cenário: Muitas tentativas de consulta
   Dado que fiz 5 consultas no último minuto

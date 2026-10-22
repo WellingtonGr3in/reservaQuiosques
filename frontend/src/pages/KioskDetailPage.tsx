@@ -46,12 +46,6 @@ export function KioskDetailPage() {
         <section className="lg:col-span-7 flex flex-col gap-6">
           <div className="relative w-full h-[340px] md:h-[400px] rounded-xl overflow-hidden shadow-sm bg-[#e9edff] border border-[#dce2f7]">
             <img className="w-full h-full object-cover" src={gallery[0]} alt={k.name} />
-            <div className="absolute top-4 left-4">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded bg-[#acf4a4] text-[#307231] text-xs font-bold tracking-wide shadow-sm">
-                <Icon name="check_circle" className="text-[14px]" />
-                ATIVO • PRONTO PARA USO
-              </span>
-            </div>
           </div>
           {gallery.length > 1 && (
             <div className="grid grid-cols-4 gap-2">

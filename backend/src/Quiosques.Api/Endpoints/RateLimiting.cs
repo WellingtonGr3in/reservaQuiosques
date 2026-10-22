@@ -2,7 +2,7 @@ using System.Threading.RateLimiting;
 
 namespace Quiosques.Api.Endpoints;
 
-// RNF06: a consulta por código + CPF aceita no máximo 5 tentativas por minuto por IP.
+// RNF06: a consulta por CPF (e o cancelamento sem login) aceita no máximo 5 tentativas por minuto por IP.
 public static class RateLimiting
 {
     public const string ReservationLookupPolicy = "consulta-reserva";

@@ -16,6 +16,9 @@ builder.Services.AddProblemDetails();
 builder.Services.AddReservationLookupRateLimit();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+// Documentação dos endpoints (docs/06-api-endpoints.md): OpenAPI + Swagger UI em desenvolvimento.
+builder.Services.AddApiDocumentation();
+
 // Corpo inválido vira exceção em todos os ambientes, para o ApiExceptionHandler responder com { "message" }.
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 
@@ -60,6 +63,11 @@ app.MapReservationEndpoints();
 app.MapPaymentEndpoints(app.Environment);
 app.MapAccountEndpoints();
 app.MapAdminEndpoints();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapApiDocumentation(); // /openapi/v1.json e /swagger
+}
 
 app.Run();
 

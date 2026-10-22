@@ -4,7 +4,8 @@ using Quiosques.Domain.ValueObjects;
 
 namespace Quiosques.Application.Reservations;
 
-// RN10: sem login, a reserva só é acessada com o código e o CPF do titular.
+// Sem login, uma reserva específica (pagamento, comprovante e cancelamento) é encontrada pelo código + CPF do titular.
+// O código vem da própria tela: da reserva recém-criada ou da lista da consulta por CPF (RN10).
 public static class ReservationLookup
 {
     public const string NotFoundMessage = "Reserva não encontrada";

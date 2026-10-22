@@ -53,15 +53,7 @@ public static class AccountEndpoints
 
         // RF10: histórico do cliente logado, incluindo reservas feitas antes de criar a conta (RN09).
         mine.MapGet("/", async (ClaimsPrincipal user, ListCustomerReservations useCase, CancellationToken ct) =>
-        {
-            var result = await useCase.ExecuteAsync(JwtTokenIssuer.CustomerIdOf(user), ct);
-            return Results.Ok(new CustomerReservationsResponse(
-                result.HolderName,
-                result.MaskedCpf,
-                result.Reservations
-                    .Select(r => ReservationEndpoints.ToResponse(r.Details, r.Completed ? CompletedStatus : null))
-                    .ToList()));
-        });
+            Results.Ok(ToResponse(await useCase.ExecuteAsync(JwtTokenIssuer.CustomerIdOf(user), ct))));
 
         // "Ver comprovante" / "Ver detalhes"
         mine.MapGet("/{code}", async (string code, ClaimsPrincipal user, GetCustomerReservation useCase, CancellationToken ct) =>
@@ -78,6 +70,14 @@ public static class AccountEndpoints
     public const string CompletedStatus = "REALIZADA";
 
     private static TokenResponse ToResponse(AccessToken token) => new(token.Token, token.ExpiresAt);
+
+    // Usado também pela consulta sem login por CPF (HU04).
+    public static CustomerReservationsResponse ToResponse(CustomerReservations result) => new(
+        result.HolderName,
+        result.MaskedCpf,
+        result.Reservations
+            .Select(r => ReservationEndpoints.ToResponse(r.Details, r.Completed ? CompletedStatus : null))
+            .ToList());
 
     public record CreateAccountRequest(string? Cpf, string? Email, string? Password);
 

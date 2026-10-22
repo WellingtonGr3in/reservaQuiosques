@@ -64,10 +64,6 @@ export function MyReservationsPage() {
     <div className="max-w-[1100px] mx-auto px-6 py-8">
       <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5 text-[#0d631b] text-xs font-semibold uppercase tracking-wider">
-            <Icon name="verified_user" className="text-[16px]" />
-            <span>Área do Condômino</span>
-          </div>
           <h1 className="text-2xl font-bold text-[#141b2b] tracking-tight">Minhas reservas</h1>
           <p className="text-xs text-[#40493d]">
             Histórico de reservas vinculadas ao CPF{' '}

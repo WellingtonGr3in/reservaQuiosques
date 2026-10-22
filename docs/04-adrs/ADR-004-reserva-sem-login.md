@@ -12,7 +12,7 @@ A reserva pode ser feita **sem conta**:
 
 1. O cliente é identificado pelo **CPF** (validado). Toda reserva fica ligada ao cliente.
 2. A reserva só é confirmada após o **pagamento via Pix** (RN06).
-3. Para consultar ou cancelar sem login, é preciso o **código da reserva + CPF** (RN10). Só o CPF não basta, porque CPF não é informação secreta.
+3. Para consultar sem login, basta o **CPF** do titular (RN10): o sistema mostra todas as reservas daquele CPF, e o cliente pode cancelar ou pagar cada uma. O cliente não precisa guardar o código da reserva. *(Revisado: a versão inicial exigia código + CPF; a equipe optou pela consulta só com o CPF por ser mais simples para o cliente, aceitando o risco descrito abaixo.)*
 4. A **conta é opcional**. Para criá-la, o cliente informa o **CPF** de quem já fez ao menos uma reserva, além de um e-mail e uma senha para entrar; as reservas antigas daquele CPF aparecem no histórico (RN09).
 
 ## Consequências
@@ -23,9 +23,9 @@ A reserva pode ser feita **sem conta**:
 - Quem cria conta depois não perde nada.
 
 **Desvantagens**
-- Menos seguro que login: quem souber o código e o CPF consegue acessar a reserva. Mitigado com limite de tentativas (RNF06) e envio do código só para o e-mail informado.
+- Menos seguro que login: CPF não é segredo, então quem souber o CPF de outra pessoa consegue ver as reservas dela (com o CPF mascarado, RNF07) e cancelá-las. Risco aceito conscientemente no MVP para simplificar a consulta. Mitigação: limite de 5 tentativas por minuto por IP (RNF06), que dificulta testar CPFs em massa. A evolução seria confirmar a posse do CPF com um código enviado para o e-mail usado nas reservas.
 - Criar conta só com o CPF é simples para o usuário, mas CPF não é segredo: quem souber o CPF de outra pessoa que ainda não tem conta consegue criá-la antes, ver o histórico e cancelar reservas dela. Risco aceito conscientemente no MVP para simplificar o cadastro; a evolução seria confirmar a posse do CPF com um código enviado para o e-mail usado nas reservas.
 - Coletar CPF exige cuidado com a LGPD (mascaramento, RNF07).
-- O pagamento passa a fazer parte do MVP, exigindo integração com um gateway Pix (ex.: Mercado Pago em modo sandbox).
+- O pagamento passa a fazer parte do MVP. No MVP o gateway Pix é simulado (o QR Code é um Pix real, mas a aprovação é feita pelo botão "Simular pagamento"), atrás da interface `IPaymentGateway`; trocar por um gateway real (ex.: Mercado Pago) exige uma URL pública para as notificações (ADR-003).
 
-**Alternativas descartadas:** login obrigatório (mais fricção) e acesso só pelo CPF (inseguro).
+**Alternativas descartadas:** login obrigatório (mais fricção) e consulta com código + CPF (mais segura, mas obriga o cliente a guardar o código; foi a decisão inicial e acabou substituída pela consulta só com o CPF).

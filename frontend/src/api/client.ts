@@ -79,7 +79,8 @@ export const api = {
   simulatePayment: (transactionId: string) => request<unknown>('POST', `/api/dev/pagamentos/${transactionId}/aprovar`),
 
   // HU04
-  lookup: (code: string, cpf: string) => request<ReservationDetails>('POST', '/api/reservas/consulta', { code, cpf }),
+  // HU04: consulta sem login só com o CPF (RN10); devolve todas as reservas do CPF.
+  lookup: (cpf: string) => request<MyReservations>('POST', '/api/reservas/consulta', { cpf }),
   cancel: (code: string, cpf: string) => request<ReservationDetails>('POST', `/api/reservas/${code}/cancelamento`, { cpf }),
 
   // HU05

@@ -22,7 +22,7 @@ public interface IReservationRepository
 
     void Add(Reservation reservation);
 
-    // RN10: a reserva só é encontrada com o código e o CPF do titular. Inclui quiosque e cliente.
+    // Sem login, uma reserva específica é encontrada pelo código + CPF do titular (RN10). Inclui quiosque e cliente.
     Task<Reservation?> GetByCodeAndCpfAsync(string code, string cpf, CancellationToken cancellationToken);
 
     // Inclui quiosque e cliente.

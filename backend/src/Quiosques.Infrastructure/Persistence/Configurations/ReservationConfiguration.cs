@@ -40,7 +40,7 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
             .HasForeignKey(r => r.KioskId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // RN10: consulta por código + CPF.
+        // Código da reserva: comprovante, pagamento e cancelamento (RN10).
         builder.HasIndex(r => r.Code).IsUnique().HasDatabaseName(CodeIndex);
 
         // RN01: índice único parcial, só para reservas ativas (ADR-001).

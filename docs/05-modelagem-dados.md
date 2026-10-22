@@ -134,7 +134,7 @@ erDiagram
 | `conta.cliente_id` único | RN09: uma conta por CPF |
 | `conta.email_login` único | Login por e-mail (RF09) |
 | `administrador.email` único | Login do administrador (RF11) |
-| `reserva.codigo` único | RN10: consulta por código + CPF |
+| `reserva.codigo` único | Identifica a reserva no comprovante, no pagamento e no cancelamento (RN10) |
 | Único em `(quiosque_id, data_reserva)` apenas para status `PENDENTE_PAGAMENTO` e `CONFIRMADA` | RN01: sem reserva duplicada ([ADR-001](04-adrs/ADR-001-banco-de-dados.md)) |
 | `pagamento.transacao_gateway_id` único | RNF03: a mesma confirmação não é processada duas vezes |
 

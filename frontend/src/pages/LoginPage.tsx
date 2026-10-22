@@ -43,16 +43,6 @@ export function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-[#f1f3ff]/40 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-[#ffffff] border border-[#dce2f7] rounded-xl p-8 shadow-sm">
-        <div className="flex items-center gap-3 mb-6 bg-[#f1f3ff] rounded-lg p-3 border border-[#dce2f7]">
-          <div className="w-8 h-8 rounded-lg bg-[#2e7d32] text-white flex items-center justify-center">
-            <Icon name="outdoor_grill" className="text-[18px]" />
-          </div>
-          <div>
-            <span className="block text-sm font-bold text-[#141b2b] leading-tight">ReservaQuiosque</span>
-            <span className="block text-xs text-[#40493d]">Gestão e Agendamento Integrado</span>
-          </div>
-        </div>
-
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#141b2b]">{tab === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}</h1>
           <p className="text-xs text-[#40493d] mt-1">

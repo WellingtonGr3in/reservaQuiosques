@@ -66,12 +66,11 @@ export function Layout() {
 
       <footer className="w-full bg-[#ffffff] border-t border-[#dce2f7]/60 py-6 mt-12 print:hidden">
         <div className="max-w-[1100px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-2 text-center md:text-left text-xs text-[#40493d]">
-          <p>© 2026 Reserva de Quiosques • Sistema de agendamento de quiosques e churrasqueiras</p>
+          <p>© 2026 Reserva de Quiosques</p>
           <div className="flex items-center gap-4">
             <NavLink to="/admin" className="hover:text-[#0d631b] hover:underline">
               Administração
             </NavLink>
-            <span>Português (Brasil)</span>
           </div>
         </div>
       </footer>

@@ -19,7 +19,6 @@ public static class DependencyInjection
         services.AddScoped<ConfirmPayment>();
         services.AddScoped<ExpireOverdueReservations>();
         services.AddScoped<GetReceipt>();
-        services.AddScoped<GetReservationDetails>();
         services.AddScoped<CancelReservation>();
         services.AddScoped<CreateAccount>();
         services.AddScoped<Login>();

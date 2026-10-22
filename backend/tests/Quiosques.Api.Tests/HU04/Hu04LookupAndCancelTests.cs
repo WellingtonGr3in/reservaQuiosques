@@ -26,16 +26,18 @@ public class Hu04LookupAndCancelTests
     }
 
     [Fact]
-    public async Task Cenario_ConsultaComDadosCorretos()
+    public async Task Cenario_ConsultaPeloCpf()
     {
         var reservation = await CreateConfirmedReservationAsync(Nov20);
 
-        // Quando eu informar o código e o CPF da reserva
-        var response = await LookupAsync(reservation.Code, TestData.FormatCpf(reservation.Cpf));
+        // Quando eu informar o CPF da reserva
+        var response = await LookupAsync(TestData.FormatCpf(reservation.Cpf));
 
         // Então vejo os dados da reserva
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var details = (await response.Content.ReadFromJsonAsync<DetailsResponse>())!;
+        var result = (await response.Content.ReadFromJsonAsync<LookupResponse>())!;
+        Assert.Equal("João da Silva", result.HolderName);
+        var details = Assert.Single(result.Reservations);
         Assert.Equal(reservation.Code, details.Code);
         Assert.Equal(Nov20, details.Date);
         Assert.Equal("CONFIRMADA", details.Status);
@@ -47,15 +49,52 @@ public class Hu04LookupAndCancelTests
     }
 
     [Fact]
-    public async Task Cenario_CodigoECpfNaoBatem()
+    public async Task Cenario_ConsultaListaTodasAsReservasDoCpf()
     {
-        var reservation = await CreateConfirmedReservationAsync(Nov20);
+        // Dado que meu CPF tem uma reserva confirmada e outra aguardando pagamento
+        var first = await CreateConfirmedReservationAsync(Nov20);
+        var second = await CreateReservationAsync(new DateOnly(2026, 11, 21), first.Cpf);
 
-        // Quando eu informar um código com um CPF diferente do da reserva
-        var response = await LookupAsync(reservation.Code, TestData.NextCpf());
+        // Quando eu consultar pelo CPF
+        var response = await LookupAsync(first.Cpf);
 
-        // Então o sistema informa "Reserva não encontrada"
-        await AssertErrorAsync(response, HttpStatusCode.NotFound, "Reserva não encontrada");
+        // Então vejo as duas reservas
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = (await response.Content.ReadFromJsonAsync<LookupResponse>())!;
+        Assert.Equal(
+            new[] { first.Code, second.Code }.Order(),
+            result.Reservations.Select(r => r.Code).Order());
+        Assert.Contains(result.Reservations, r => r.Code == second.Code && r.Status == "PENDENTE_PAGAMENTO");
+    }
+
+    [Fact]
+    public async Task Cenario_CpfSemReservas()
+    {
+        // Quando eu informar um CPF que nunca fez reserva
+        var response = await LookupAsync(TestData.NextCpf());
+
+        // Então o sistema informa que não encontrou reservas
+        await AssertErrorAsync(response, HttpStatusCode.NotFound, "Não encontramos reservas com este CPF");
+    }
+
+    [Fact]
+    public async Task RN04_ConsultaComCpfInvalido()
+    {
+        var response = await LookupAsync("111.111.111-11");
+
+        await AssertErrorAsync(response, HttpStatusCode.UnprocessableEntity, "CPF inválido");
+    }
+
+    [Fact]
+    public async Task RN10_CpfDeOutroClienteNaoMostraAsReservasDesteCliente()
+    {
+        var mine = await CreateConfirmedReservationAsync(Nov20);
+        var other = await CreateReservationAsync(new DateOnly(2026, 11, 22));
+
+        var response = await LookupAsync(other.Cpf);
+
+        var result = (await response.Content.ReadFromJsonAsync<LookupResponse>())!;
+        Assert.DoesNotContain(result.Reservations, r => r.Code == mine.Code);
     }
 
     [Fact]
@@ -64,12 +103,12 @@ public class Hu04LookupAndCancelTests
         // Dado que fiz 5 consultas no último minuto
         for (var i = 0; i < 5; i++)
         {
-            var attempt = await LookupAsync("QSK-AAAAAA", TestData.NextCpf());
+            var attempt = await LookupAsync(TestData.NextCpf());
             Assert.Equal(HttpStatusCode.NotFound, attempt.StatusCode);
         }
 
         // Quando eu fizer a 6ª consulta
-        var response = await LookupAsync("QSK-AAAAAA", TestData.NextCpf());
+        var response = await LookupAsync(TestData.NextCpf());
 
         // Então o sistema informa que devo aguardar antes de tentar novamente
         await AssertErrorAsync(response, HttpStatusCode.TooManyRequests, "Muitas tentativas. Aguarde um minuto e tente novamente.");
@@ -80,11 +119,11 @@ public class Hu04LookupAndCancelTests
     {
         for (var i = 0; i < 6; i++)
         {
-            await LookupAsync("QSK-AAAAAA", TestData.NextCpf());
+            await LookupAsync(TestData.NextCpf());
         }
 
         var otherIp = _fixture.CreateClientWithOwnIp();
-        var response = await otherIp.PostAsJsonAsync("/api/reservas/consulta", new { code = "QSK-AAAAAA", cpf = TestData.NextCpf() });
+        var response = await otherIp.PostAsJsonAsync("/api/reservas/consulta", new { cpf = TestData.NextCpf() });
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -94,7 +133,7 @@ public class Hu04LookupAndCancelTests
     {
         for (var i = 0; i < 5; i++)
         {
-            await LookupAsync("QSK-AAAAAA", TestData.NextCpf());
+            await LookupAsync(TestData.NextCpf());
         }
 
         var response = await CancelAsync("QSK-AAAAAA", TestData.NextCpf());
@@ -220,10 +259,10 @@ public class Hu04LookupAndCancelTests
         Assert.Equal("CONFIRMADA", await StatusAsync(reservation));
     }
 
-    private async Task<CreatedReservation> CreateReservationAsync(DateOnly date)
+    private async Task<CreatedReservation> CreateReservationAsync(DateOnly date, string? cpf = null)
     {
         var kiosk = await _data.KioskAsync();
-        var cpf = TestData.NextCpf();
+        cpf ??= TestData.NextCpf();
         var response = await _fixture.Api.CreateClient().PostAsJsonAsync("/api/reservas", new
         {
             kioskId = kiosk.Id, date, cpf, name = "João da Silva", email = "joao@exemplo.com", phone = "47999998888",
@@ -254,8 +293,8 @@ public class Hu04LookupAndCancelTests
         return (await response.Content.ReadFromJsonAsync<OutcomeResponse>())!.Outcome;
     }
 
-    private Task<HttpResponseMessage> LookupAsync(string code, string cpf) =>
-        _client.PostAsJsonAsync("/api/reservas/consulta", new { code, cpf });
+    private Task<HttpResponseMessage> LookupAsync(string cpf) =>
+        _client.PostAsJsonAsync("/api/reservas/consulta", new { cpf });
 
     private Task<HttpResponseMessage> CancelAsync(string code, string cpf) =>
         _client.PostAsJsonAsync($"/api/reservas/{code}/cancelamento", new { cpf });
@@ -298,6 +337,8 @@ public class Hu04LookupAndCancelTests
         string Code, string KioskName, int KioskCapacity, string KioskPhotoUrl, DateOnly Date, TimeOnly StartTime, TimeOnly EndTime,
         string HolderName, string MaskedCpf, decimal Amount, string Status, DateTimeOffset CreatedAt,
         DateTimeOffset CancellationDeadline, bool CanCancel);
+
+    private record LookupResponse(string HolderName, string MaskedCpf, List<DetailsResponse> Reservations);
 
     private record ErrorResponse(string Message);
 

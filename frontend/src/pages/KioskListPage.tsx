@@ -13,10 +13,6 @@ export function KioskListPage() {
     <div className="max-w-[1100px] mx-auto px-6 py-8">
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-1.5 text-[#0d631b] text-xs font-semibold uppercase tracking-wider mb-1">
-            <Icon name="outdoor_grill" className="text-[16px]" />
-            <span>Áreas de Lazer Comunitárias</span>
-          </div>
           <h1 className="text-3xl font-bold text-[#141b2b] tracking-tight">Quiosques disponíveis</h1>
           <p className="text-sm text-[#40493d] mt-1">
             Selecione um quiosque para ver detalhes e datas disponíveis para reserva com churrasqueira.

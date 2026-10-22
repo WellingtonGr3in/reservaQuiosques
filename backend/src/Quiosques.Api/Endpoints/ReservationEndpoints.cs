@@ -31,12 +31,13 @@ public static class ReservationEndpoints
                 receipt.HolderName, receipt.MaskedCpf, receipt.Amount, ToApi(receipt.Status)));
         });
 
-        // RF08 / HU04: consulta sem login com código + CPF (RN10), limitada a 5 tentativas por minuto por IP (RNF06).
-        group.MapPost("/consulta", async (LookupRequest request, GetReservationDetails useCase, CancellationToken ct) =>
-                Results.Ok(ToResponse(await useCase.ExecuteAsync(request.Code, request.Cpf, ct))))
+        // RF08 / HU04: consulta sem login só com o CPF (RN10): todas as reservas do CPF, como em "Minhas reservas".
+        // Limitada a 5 tentativas por minuto por IP (RNF06).
+        group.MapPost("/consulta", async (PaymentEndpoints.CpfRequest request, ListCustomerReservations useCase, CancellationToken ct) =>
+                Results.Ok(AccountEndpoints.ToResponse(await useCase.ExecuteByCpfAsync(request.Cpf, ct))))
             .RequireRateLimiting(RateLimiting.ReservationLookupPolicy);
 
-        // RF08 / HU04: cancelamento sem login com código + CPF (RN07, RN10), com o mesmo limite.
+        // RF08 / HU04: cancelamento sem login de uma reserva da lista da consulta, com código + CPF (RN07, RN10), com o mesmo limite.
         group.MapPost("/{code}/cancelamento", async (string code, PaymentEndpoints.CpfRequest request, CancelReservation useCase, CancellationToken ct) =>
                 Results.Ok(ToResponse(await useCase.ExecuteAsync(code, request.Cpf, ct))))
             .RequireRateLimiting(RateLimiting.ReservationLookupPolicy);
@@ -69,8 +70,6 @@ public static class ReservationEndpoints
         string HolderName, string MaskedCpf, decimal Amount, string Status);
 
     public record ReservationResponse(string Code, Guid KioskId, DateOnly Date, decimal Amount, string Status, DateTimeOffset ExpiresAt);
-
-    public record LookupRequest(string? Code, string? Cpf);
 
     public record ReservationDetailsResponse(
         string Code, string KioskName, int KioskCapacity, string KioskPhotoUrl, DateOnly Date, TimeOnly StartTime, TimeOnly EndTime,
